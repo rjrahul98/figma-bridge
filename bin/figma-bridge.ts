@@ -11,7 +11,15 @@
 
 import { Command } from 'commander';
 import { initCommand } from '../src/commands/init.js';
+import { scaffoldCommand } from '../src/commands/scaffold.js';
+import { tokensSyncCommand } from '../src/commands/tokens-sync.js';
+import { componentsScanCommand } from '../src/commands/components-scan.js';
 import { logger } from '../src/utils/logger.js';
+
+function handleError(error: unknown): never {
+  logger.error(error instanceof Error ? error.message : String(error));
+  process.exit(1);
+}
 
 const program = new Command('figma-bridge')
   .version('2.0.0')
@@ -28,10 +36,7 @@ program
     try {
       await initCommand();
     } catch (error) {
-      logger.error(
-        error instanceof Error ? error.message : String(error),
-      );
-      process.exit(1);
+      handleError(error);
     }
   });
 
@@ -49,11 +54,12 @@ program
   .option('--iterations <n>', 'Override max iterations', parseInt)
   .option('--score <n>', 'Override target score', parseInt)
   .option('--verbose', 'Show iteration details', false)
-  .action(async (_options) => {
-    logger.warn(
-      'scaffold command is not yet implemented (Phase 2+).',
-    );
-    process.exit(0);
+  .action(async (options) => {
+    try {
+      await scaffoldCommand(options);
+    } catch (error) {
+      handleError(error);
+    }
   });
 
 // ─── audit ───────────────────────────────────────────────────────────────────
@@ -74,7 +80,7 @@ program
   .option('--ai', 'Include AI-assisted interpretation', false)
   .option('--strict', 'Zero tolerance mode', false)
   .action(async (_options) => {
-    logger.warn('audit command is not yet implemented (Phase 3+).');
+    logger.warn('audit command is not yet implemented (Phase 3).');
     process.exit(0);
   });
 
@@ -88,10 +94,11 @@ tokensCmd
   .command('sync')
   .description('Re-sync tokens from tailwind.config')
   .action(async () => {
-    logger.warn(
-      'tokens sync command is not yet implemented (Phase 2+).',
-    );
-    process.exit(0);
+    try {
+      await tokensSyncCommand();
+    } catch (error) {
+      handleError(error);
+    }
   });
 
 // ─── components scan ─────────────────────────────────────────────────────────
@@ -104,10 +111,11 @@ componentsCmd
   .command('scan')
   .description('Re-scan the component directory and rebuild the index')
   .action(async () => {
-    logger.warn(
-      'components scan command is not yet implemented (Phase 2+).',
-    );
-    process.exit(0);
+    try {
+      await componentsScanCommand();
+    } catch (error) {
+      handleError(error);
+    }
   });
 
 // ─── Parse & run ─────────────────────────────────────────────────────────────
